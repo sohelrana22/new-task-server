@@ -24,6 +24,37 @@ router.post("/add-billing", async (req, res) => {
 })
 
 //get records 
+router.get("/billing", async (req, res) => {
+    const PAGE_SIZE = 10;
+    const page = parseInt(req.query.page || "0");
+    const total = await bill.countDocuments({});
+    try {
+        const result = await bill.find()
+        .limit(PAGE_SIZE)
+        .skip(PAGE_SIZE * page);
+      res.json({
+        totalPages: Math.ceil(total / PAGE_SIZE),
+        result,
+      });
+        if (!result) {
+            res.json({
+                status: "FAILED",
+                message: "Not found record"
+            })
+        }
+        else {
+            res.json({
+                status: "SUCCESS",
+                message: "Records found",
+                data: result
+            })
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+})
+//get records 
 router.get("/billing-list", async (req, res) => {
     try {
         const result = await bill.find()
@@ -45,7 +76,6 @@ router.get("/billing-list", async (req, res) => {
         console.log(e)
     }
 })
-
 //get single record
 router.get("/bill/:id", async (req, res) => {
     try {
